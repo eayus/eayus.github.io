@@ -1,5 +1,7 @@
+---
 layout: post
 title: "Types: values vs representation"
+description: ""
 tags: [web, jekyll]
 ---
 
@@ -43,7 +45,7 @@ data Maybe : Type -> Type where
     Some : a -> Option a
 {% endhighlight %}
 
-A compiler might represent this in memory as a pair of a tag (describing which constructor has been applied), and a pointer (pointing to the `a` if we're in the `Some` variant). While this reprsentation is certainly not egregious, there's still room for improvement - we could instead represent this as a single pointer which is `null` in the `None` case. `Rust` hardcodes an optimisation of this sort when using an `Option<&T>`.
+A compiler might represent this in memory as a pair of a tag (describing which constructor has been applied), and a pointer (pointing to the `a` if we're in the `Some` variant). While this representation is certainly not egregious, there's still room for improvement - we could instead represent this as a single pointer which is `null` in the `None` case. `Rust` hardcodes an optimisation of this sort when using an `Option<&T>`.
 
 
 ### Tagged Unions
@@ -73,17 +75,30 @@ It is a tagged union, where the tag is used to discern which type is in the unio
 
 # The best of both worlds?
 
-Evidently, using one definition to describe both a type's values and representation always leaves one area lacking. The obvious solution is to define them separately! A definition of a type's values can be seen as the "interface" for the representation to implement. Of course, we might need to attach some extra constraints to ensure that the representation is faithful. Unfortunately, figuring out a nice way to do this is a problem on its own. So that the conclusion to this post is not completely underwhelming, below is a simple example of how something like this might be implemented.
+Evidently, using one definition to describe both a type's values and representation always leaves one area lacking. The obvious solution is to define them separately! A definition of a type's values can be seen as the "interface" for the representation to implement. Of course, we might need to attach some extra constraints to ensure that the representation is faithful. Unfortunately, figuring out a nice way to do this is a problem on its own. So that the conclusion to this post is not completely underwhelming, below is a simple example of how I envision something like this might be implemented.
 
 
 {% highlight haskell %}
-data Nat as I32 : Type where
-
+data Nat : Type where
     Zero : Nat
+    Succ : Nat -> Nat
+    
+
+impl Nat as I32 where
+    Zero : I32
     Zero = 0
 
-    Succ : Nat -> Nat
+    Succ : I32 -> I32
     Succ n = 1 + n
+
+    cases : I32 -> a -> (I32 -> a) -> a
+    cases n whenZ whenS =
+        if n == 0
+            then whenZ
+	    else whenS (n - 1)
+
 {% endhighlight %}
 
-In this case, we implemented the naturals as a 32 bit int value, `I32`. `0` and `1` are literals for `I32`, and `+` is a addition on `I32` values.
+In this case, we implemented the naturals as a 32 bit int value, `I32`. The idea is that we must give some concrete implementation for every constructor/eliminator the data type definition brings into context. The definition of `cases` represents an implementation of pattern matching.
+
+Whether all of this is the right approach to solving this problem, I'm still not sure - but I think it's a start.
