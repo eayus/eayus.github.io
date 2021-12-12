@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Ellis's Blog | Types: values vs representation</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="Types: values vs representation">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="eayus.github.io/posts/types-representation">
+  <meta property="og:description" content="">
+  <meta property="og:site_name" content="Ellis's Blog">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="eayus.github.io/posts/types-representation">
+  <meta name="twitter:title" content="Types: values vs representation">
+  <meta name="twitter:description" content="">
+
+  
+    <meta property="og:image" content="eayus.github.io/assets/og-image-ee46bbc61b334e821e81534b1fd43f3fee6f020ec174b3c2114445695fd48c01.jpg">
+    <meta name="twitter:image" content="eayus.github.io/assets/og-image-ee46bbc61b334e821e81534b1fd43f3fee6f020ec174b3c2114445695fd48c01.jpg">
+  
+
+  <link href="eayus.github.io/feed.xml" type="application/rss+xml" rel="alternate" title="Ellis's Blog Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-light-a98c41efc5ed9fcc06ac664c9e2f7a9b3c3b2e0a52357d221fe382f6f4abc8fc.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-light-87d1f2a3a19b1500e5c1626a0492025ca5f7f97d24540dc5900288e92112925a.png">
+      <link rel="stylesheet" type="text/css" title="light" id="light" href="/assets/light-bb1553a18d0f1ccfe1aabc010584c49b4277a88503216b78906ba719e30019c1.css">
+      <link rel="stylesheet" type="text/css" title="dark" id="dark" href="/assets/dark-831218bc9e41aef39ee6a0bae4501195bccafcc13101ae2b9cd20493a6ec04c0.css" disabled="true">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="Ellis's Blog">Ellis's Blog</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+      <li>
+        <a href="https://github.com/eayus" rel="noreferrer noopener" target="_blank" title="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-github">
+  <use href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github" xlink:href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      <li>
+        <a onclick="toggle()" title="Toggle Theme">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-theme">
+  <use href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme" xlink:href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme"></use>
+</svg>
+
+        </a>
+      </li>
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>Types: values vs representation</h1>
+            <p></p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    December 12, 2021
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      4 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/web" title="See all posts with tag 'Web'">Web</a>
+    
+      
+      <a href="/tag/jekyll" title="See all posts with tag 'Jekyll'">Jekyll</a>
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <h1 id="introduction">Introduction</h1>
+
+<p>On a fundamental level, why is it so much more difficult to implement GADTs efficiently when compared to standard C-style structs? One might think that allowing the user to define their types more accurately would enable compilers to come up with a more specialised implementation. I believe the reason is that C structs and GADTs are not two different approaches to the same problem, but solutions to two different problems entirely.</p>
+
+<p>I believe there are two distinct properties of a type - a definition of the values it contains, and a definition of how to represent those values in memory.</p>
+
+<ul>
+  <li>
+    <p>Functional languages, specifically dependently typed ones, are excellent at defining a type’s values. However, the data type’s memory representation is left to be inferred by the compiler, often resulting in inefficient code.</p>
+  </li>
+  <li>
+    <p>Low level languages, notably C, define <em>only</em> a type’s memory representation. In my opinion, this is the general reason why it is so difficult to write bug-free C code. A <code class="highlighter-rouge">void*</code> might describe the layout, but gives us absolutely no information on what values the type contains!</p>
+  </li>
+</ul>
+
+<p>To get the best of both worlds, perhaps we need a language which allows us to specify both these properties.</p>
+
+<h1 id="the-problem-by-example">The problem, by example</h1>
+
+<h3 id="natural-numbers">Natural numbers</h3>
+
+<p>Whichever property of types the language choses to define, it typically evolves to include awkward workarounds for defining the other property. For example, in a functional language we might define the Peano naturals as follows:</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="kr">data</span> <span class="kt">Nat</span> <span class="o">:</span> <span class="kt">Type</span> <span class="kr">where</span>
+    <span class="kt">Zero</span> <span class="o">:</span> <span class="kt">Nat</span>
+    <span class="kt">Succ</span> <span class="o">:</span> <span class="kt">Nat</span> <span class="o">-&gt;</span> <span class="kt">Nat</span></code></pre></figure>
+
+<p>However, any non-trivial program using this raw definition will likely suffer serious performance problems, because the compiler infers the <em>type representation</em> poorly. To work around this, compilers will often have in-built support for this type, which transforms it into a standard machine integer at run-time. <code class="highlighter-rouge">Agda</code> and <code class="highlighter-rouge">Idris</code> both do this.</p>
+
+<h3 id="optionals">Optionals</h3>
+
+<p>Another example is the <code class="highlighter-rouge">Option</code>/<code class="highlighter-rouge">Maybe</code> type:</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="kr">data</span> <span class="kt">Maybe</span> <span class="o">:</span> <span class="kt">Type</span> <span class="o">-&gt;</span> <span class="kt">Type</span> <span class="kr">where</span>
+    <span class="kt">None</span> <span class="o">:</span> <span class="kt">Option</span> <span class="n">a</span>
+    <span class="kt">Some</span> <span class="o">:</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="kt">Option</span> <span class="n">a</span></code></pre></figure>
+
+<p>A compiler might represent this in memory as a pair of a tag (describing which constructor has been applied), and a pointer (pointing to the <code class="highlighter-rouge">a</code> if we’re in the <code class="highlighter-rouge">Some</code> variant). While this representation is certainly not egregious, there’s still room for improvement - we could instead represent this as a single pointer which is <code class="highlighter-rouge">null</code> in the <code class="highlighter-rouge">None</code> case. <code class="highlighter-rouge">Rust</code> hardcodes an optimisation of this sort when using an <code class="highlighter-rouge">Option&lt;&amp;T&gt;</code>.</p>
+
+<h3 id="tagged-unions">Tagged Unions</h3>
+
+<p>Of course, the problem exists in the other direction too. Only specifying a data’s representation leaves its values ambiguous. Consider the following C definition:</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">enum</span> <span class="n">tag</span> <span class="p">{</span>
+    <span class="n">tag_a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">tag_b</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="k">union</span> <span class="n">val</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="n">a</span> <span class="n">a</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">b</span> <span class="n">b</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">union</span> <span class="n">type</span> <span class="p">{</span>
+    <span class="k">enum</span> <span class="n">tag</span> <span class="n">tag</span><span class="p">;</span>
+    <span class="k">union</span> <span class="n">val</span> <span class="n">val</span><span class="p">;</span>
+<span class="p">};</span></code></pre></figure>
+
+<p>It is a tagged union, where the tag is used to discern which type is in the union. As a programmer, we understand this link, however the compiler doesn’t. The compiler doesn’t understand that the value <code class="highlighter-rouge">b</code> will be undefined if the tag is <code class="highlighter-rouge">tag_a</code>. In other words, we have done a poor job of describing the <em>type values</em> to the compiler. The common workaround to this issue is to use a macro to generate the “safe accessor” functions which ensure the tag is checked before accessing the union.</p>
+
+<h1 id="the-best-of-both-worlds">The best of both worlds?</h1>
+
+<p>Evidently, using one definition to describe both a type’s values and representation always leaves one area lacking. The obvious solution is to define them separately! A definition of a type’s values can be seen as the “interface” for the representation to implement. Of course, we might need to attach some extra constraints to ensure that the representation is faithful. Unfortunately, figuring out a nice way to do this is a problem on its own. So that the conclusion to this post is not completely underwhelming, below is a simple example of how I envision something like this might be implemented.</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="kr">data</span> <span class="kt">Nat</span> <span class="o">:</span> <span class="kt">Type</span> <span class="kr">where</span>
+    <span class="kt">Zero</span> <span class="o">:</span> <span class="kt">Nat</span>
+    <span class="kt">Succ</span> <span class="o">:</span> <span class="kt">Nat</span> <span class="o">-&gt;</span> <span class="kt">Nat</span>
+    
+
+<span class="n">impl</span> <span class="kt">Nat</span> <span class="n">as</span> <span class="kt">I32</span> <span class="kr">where</span>
+    <span class="kt">Zero</span> <span class="o">:</span> <span class="kt">I32</span>
+    <span class="kt">Zero</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="kt">Succ</span> <span class="o">:</span> <span class="kt">I32</span> <span class="o">-&gt;</span> <span class="kt">I32</span>
+    <span class="kt">Succ</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">n</span>
+
+    <span class="n">cases</span> <span class="o">:</span> <span class="kt">I32</span> <span class="o">-&gt;</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">I32</span> <span class="o">-&gt;</span> <span class="n">a</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">a</span>
+    <span class="n">cases</span> <span class="n">n</span> <span class="n">whenZ</span> <span class="n">whenS</span> <span class="o">=</span>
+        <span class="kr">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="kr">then</span> <span class="n">whenZ</span>
+	    <span class="kr">else</span> <span class="n">whenS</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></code></pre></figure>
+
+<p>In this case, we implemented the naturals as a 32 bit int value, <code class="highlighter-rouge">I32</code>. The idea is that we must give some concrete implementation for every constructor/eliminator the data type definition brings into context. The definition of <code class="highlighter-rouge">cases</code> represents an implementation of pattern matching.</p>
+
+<p>Whether all of this is the right approach to solving this problem, I’m still not sure - but I think it’s a start.</p>
+
+          </div>
+          <div class="article-share">
+            
+            
+            <a href="https://twitter.com/home?status=Types:+values+vs+representation%20-%20eayus.github.io/posts/types-representation" title="Share on Twitter" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M492 109.5c-17.4 7.7-36 12.9-55.6 15.3 20-12 35.4-31 42.6-53.6 -18.7 11.1-39.4 19.2-61.5 23.5C399.8 75.8 374.6 64 346.8 64c-53.5 0-96.8 43.4-96.8 96.9 0 7.6 0.8 15 2.5 22.1 -80.5-4-151.9-42.6-199.6-101.3 -8.3 14.3-13.1 31-13.1 48.7 0 33.6 17.2 63.3 43.2 80.7C67 210.7 52 206.3 39 199c0 0.4 0 0.8 0 1.2 0 47 33.4 86.1 77.7 95 -8.1 2.2-16.7 3.4-25.5 3.4 -6.2 0-12.3-0.6-18.2-1.8 12.3 38.5 48.1 66.5 90.5 67.3 -33.1 26-74.9 41.5-120.3 41.5 -7.8 0-15.5-0.5-23.1-1.4C62.8 432 113.7 448 168.3 448 346.6 448 444 300.3 444 172.2c0-4.2-0.1-8.4-0.3-12.5C462.6 146 479 129 492 109.5z"/></svg>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=eayus.github.io/posts/types-representation" title="Share on Facebook" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M288 192v-38.1c0-17.2 3.8-25.9 30.5-25.9H352V64h-55.9c-68.5 0-91.1 31.4-91.1 85.3V192h-45v64h45v192h83V256h56.4l7.6-64H288z"/></svg>
+            </a>
+          </div>
+
+          
+        </article>
+        <footer class="footer scrollappear">
+  <p>
+    Chalk is a high quality, completely customizable, performant and 100% free
+    blog template for Jekyll built by
+    <a href="/about" title="About me">Nielsen Ramon</a>. Download it <a href="https://github.com/nielsenramon/chalk" rel="noreferrer noopener" target="_blank" title="Download Chalk">here</a>.
+  </p>
+</footer>
+
+      </div>
+    </div>
+  </main>
+  
+
+<script type="text/javascript" src="/assets/vendor-734ddaa553ebf4e6ca703bd7c567ef4a0e43b0ba799607355e56b81e88781318.js"></script>
+
+
+  <script type="text/javascript" src="/assets/webfonts-96493456d319d1bf419afdf8701552d4d486fee6afd304897d4fd81eb4e0cc0b.js"></script>
+
+
+
+  <script type="text/javascript" src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js"></script>
+
+
+<script type="text/javascript" src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js"></script>
+
+
+  <script type="text/javascript" src="/assets/themetoggle-df0d3d73164dc26dffbd630182ae4d0dfa7bee6b694a2b5d565d73595b582bbf.js"></script>
+
+</body>
+</html>

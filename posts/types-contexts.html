@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Ellis's Blog | Types are contexts</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="Types are contexts">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="eayus.github.io/posts/types-contexts">
+  <meta property="og:description" content="">
+  <meta property="og:site_name" content="Ellis's Blog">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="eayus.github.io/posts/types-contexts">
+  <meta name="twitter:title" content="Types are contexts">
+  <meta name="twitter:description" content="">
+
+  
+    <meta property="og:image" content="eayus.github.io/assets/og-image-ee46bbc61b334e821e81534b1fd43f3fee6f020ec174b3c2114445695fd48c01.jpg">
+    <meta name="twitter:image" content="eayus.github.io/assets/og-image-ee46bbc61b334e821e81534b1fd43f3fee6f020ec174b3c2114445695fd48c01.jpg">
+  
+
+  <link href="eayus.github.io/feed.xml" type="application/rss+xml" rel="alternate" title="Ellis's Blog Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-light-a98c41efc5ed9fcc06ac664c9e2f7a9b3c3b2e0a52357d221fe382f6f4abc8fc.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-light-87d1f2a3a19b1500e5c1626a0492025ca5f7f97d24540dc5900288e92112925a.png">
+      <link rel="stylesheet" type="text/css" title="light" id="light" href="/assets/light-bb1553a18d0f1ccfe1aabc010584c49b4277a88503216b78906ba719e30019c1.css">
+      <link rel="stylesheet" type="text/css" title="dark" id="dark" href="/assets/dark-831218bc9e41aef39ee6a0bae4501195bccafcc13101ae2b9cd20493a6ec04c0.css" disabled="true">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="Ellis's Blog">Ellis's Blog</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+      <li>
+        <a href="https://github.com/eayus" rel="noreferrer noopener" target="_blank" title="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-github">
+  <use href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github" xlink:href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      <li>
+        <a onclick="toggle()" title="Toggle Theme">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-theme">
+  <use href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme" xlink:href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme"></use>
+</svg>
+
+        </a>
+      </li>
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>Types are contexts</h1>
+            <p></p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    December 12, 2021
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      6 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/web" title="See all posts with tag 'Web'">Web</a>
+    
+      
+      <a href="/tag/jekyll" title="See all posts with tag 'Jekyll'">Jekyll</a>
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <h1 id="introduction">Introduction</h1>
+
+<p>For anyone that has ever implemented a language with algebraic data types, the idea that types are just contexts is probably already familiar to you. Typically, when a compiler reaches a data type definition, it simply adds the constructors’ types into its context. Additionally, it might explicitly mark the types as being constructors, so that we know how to pattern match on it later. For example, the definition of natural numbers:</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="kr">data</span> <span class="kt">Nat</span> <span class="o">:</span> <span class="kt">Type</span> <span class="kr">where</span>
+    <span class="kt">Zero</span> <span class="o">:</span> <span class="kt">Nat</span>
+    <span class="kt">Succ</span> <span class="o">:</span> <span class="kt">Nat</span> <span class="o">-&gt;</span> <span class="kt">Nat</span></code></pre></figure>
+
+<p>Would result in the following context:</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="n">con</span> <span class="kt">Nat</span>  <span class="o">:</span> <span class="kt">Type</span>
+<span class="n">con</span> <span class="kt">Zero</span> <span class="o">:</span> <span class="kt">Nat</span>
+<span class="n">con</span> <span class="kt">Succ</span> <span class="o">:</span> <span class="kt">Nat</span> <span class="o">-&gt;</span> <span class="kt">Nat</span></code></pre></figure>
+
+<p>Where <code class="highlighter-rouge">con</code> marks the type as being a constructor. Now, if we want to pattern match on a value of type <code class="highlighter-rouge">Nat</code>, we can look for all the entries marked by <code class="highlighter-rouge">con</code> which return a <code class="highlighter-rouge">Nat</code>.</p>
+
+<p>However, from a type-theoretic perspective, pattern matching is not fundamental, and is really just syntactic sugar around an <em>eliminator</em> for a type. If we pattern match on a <code class="highlighter-rouge">Nat</code>, we have to cover two cases: the case of <code class="highlighter-rouge">Zero</code>, and the case of <code class="highlighter-rouge">Succ n</code>. We can capture this eliminator in the following type (a non-dependently typed eliminator for simplicity):</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="kt">ElimNat</span> <span class="o">:</span> <span class="kt">Nat</span> <span class="o">-&gt;</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">Nat</span> <span class="o">-&gt;</span> <span class="n">a</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">a</span></code></pre></figure>
+
+<p>The first argument is the <code class="highlighter-rouge">Nat</code> to case split on. The second argument is the value to return if the supplied <code class="highlighter-rouge">Nat</code> is <code class="highlighter-rouge">Zero</code>. The third argument is a function which computes the value to return if the supplied <code class="highlighter-rouge">Nat</code> is <code class="highlighter-rouge">Succ n</code>, where the predecessor <code class="highlighter-rouge">n</code> is passed to the function.</p>
+
+<p>The idea is that we can deal away with the <code class="highlighter-rouge">con</code> hackery by additionally adding the eliminator to the context when we process a data type definition.</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="kt">Nat</span>     <span class="o">:</span> <span class="kt">Type</span>
+<span class="kt">Zero</span>    <span class="o">:</span> <span class="kt">Nat</span>
+<span class="kt">Succ</span>    <span class="o">:</span> <span class="kt">Nat</span> <span class="o">-&gt;</span> <span class="kt">Nat</span>
+<span class="kt">ElimNat</span> <span class="o">:</span> <span class="kt">Nat</span> <span class="o">-&gt;</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">Nat</span> <span class="o">-&gt;</span> <span class="n">a</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">a</span></code></pre></figure>
+
+<p>Unfortunately, we aren’t quite done yet. When I was describing what <code class="highlighter-rouge">ElimNat</code> meant, I described some very specific semantics that we have not told the compiler about yet. For example, the compiler doesn’t know that it that two expressions like <code class="highlighter-rouge">ElimNat Zero x f</code> and <code class="highlighter-rouge">x</code> are actually equivalent, because we haven’t told it so! In a dependently typed language this can be expressed with a few equalities:</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="kt">ElimZero</span> <span class="o">:</span> <span class="kt">ElimNat</span> <span class="kt">Zero</span>     <span class="n">x</span> <span class="n">f</span> <span class="o">=</span> <span class="n">x</span>
+<span class="kt">ElimSucc</span> <span class="o">:</span> <span class="kt">ElimNat</span> <span class="p">(</span><span class="kt">Succ</span> <span class="n">n</span><span class="p">)</span> <span class="n">x</span> <span class="n">f</span> <span class="o">=</span> <span class="n">f</span> <span class="n">n</span></code></pre></figure>
+
+<p>In total, that gives us the following description of the natural numbers, in context form:</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="kt">Nat</span>      <span class="o">:</span> <span class="kt">Type</span>
+<span class="kt">Zero</span>     <span class="o">:</span> <span class="kt">Nat</span>
+<span class="kt">Succ</span>     <span class="o">:</span> <span class="kt">Nat</span> <span class="o">-&gt;</span> <span class="kt">Nat</span>
+<span class="kt">ElimNat</span>  <span class="o">:</span> <span class="kt">Nat</span> <span class="o">-&gt;</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">Nat</span> <span class="o">-&gt;</span> <span class="n">a</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">a</span>
+<span class="kt">ElimZero</span> <span class="o">:</span> <span class="kt">ElimNat</span> <span class="kt">Zero</span>     <span class="n">x</span> <span class="n">f</span> <span class="o">=</span> <span class="n">x</span>
+<span class="kt">ElimSucc</span> <span class="o">:</span> <span class="kt">ElimNat</span> <span class="p">(</span><span class="kt">Succ</span> <span class="n">n</span><span class="p">)</span> <span class="n">x</span> <span class="n">f</span> <span class="o">=</span> <span class="n">f</span> <span class="n">n</span></code></pre></figure>
+
+<h1 id="but-what-about">But what about…</h1>
+
+<h3 id="no-eliminators">No eliminators?</h3>
+
+<p>Interestingly, defining a type as a context (hereon <em>contype</em>) is a generalised version of even GADTs. With all this new power, it can be interesting to think about what different contypes may represent. For example, what about the contype for the natural numbers, but without an eliminator? What would that type even mean?</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="kt">Nat</span>  <span class="o">:</span> <span class="kt">Type</span>
+<span class="kt">Zero</span> <span class="o">:</span> <span class="kt">Nat</span>
+<span class="kt">Succ</span> <span class="o">:</span> <span class="kt">Nat</span> <span class="o">-&gt;</span> <span class="kt">Nat</span></code></pre></figure>
+
+<p>Unfortunately the answer seems to be rather boring. With no way to destruct the type, all values are indistinguishible, and so our contype is just equivalent to the unit type. (I don’t know category theory, but I suspect that it would be very useful in analysing these contypes).</p>
+
+<h3 id="no-constructors">No constructors?</h3>
+
+<p>What about a type without any constructors?</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="kt">X</span>  <span class="o">:</span> <span class="kt">Type</span>
+<span class="kt">ElimX</span> <span class="o">:</span> <span class="kt">X</span> <span class="o">-&gt;</span> <span class="n">a</span></code></pre></figure>
+
+<p>This is the familiar <code class="highlighter-rouge">Void</code> type!</p>
+
+<h3 id="non-structural">Non structural?</h3>
+
+<p>ADTs and GADTs <em>structural</em>, in the sense that the way they are constructed is symmetric to the way they are destructed. For example, our contype for naturals contains a single destructor that handles case for every constructor. But what if we designed a type where this wasn’t the case? Where the way to construct it and destruct it were not necessarily symmetric?</p>
+
+<p>Consider the following definition of sets (which for simplicity, assumes elements of an arbitrary type are comparable with <code class="highlighter-rouge">==</code>):</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="kt">Set</span>       <span class="o">:</span> <span class="kt">Type</span> <span class="o">-&gt;</span> <span class="kt">Type</span>
+<span class="kt">Empty</span>     <span class="o">:</span> <span class="kt">Set</span> <span class="n">a</span>
+<span class="kt">Add</span>       <span class="o">:</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="kt">Set</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="kt">Set</span> <span class="n">a</span>
+<span class="kt">Elem</span>      <span class="o">:</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="kt">Set</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="kt">Bool</span>
+<span class="kt">ElemEmpty</span> <span class="o">:</span> <span class="kt">Elem</span> <span class="n">x</span> <span class="kt">Empty</span>     <span class="o">=</span> <span class="kt">False</span>
+<span class="kt">ElemAdd</span>   <span class="o">:</span> <span class="kt">Elem</span> <span class="n">x</span> <span class="n">s</span>         <span class="o">=</span> <span class="n">b</span>
+         <span class="o">-&gt;</span> <span class="kt">Elem</span> <span class="n">x</span> <span class="p">(</span><span class="kt">Add</span> <span class="n">y</span> <span class="n">s</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">y</span> <span class="o">||</span> <span class="n">b</span><span class="p">)</span></code></pre></figure>
+
+<p>We’ve defined two constructors <code class="highlighter-rouge">Empty</code> and <code class="highlighter-rouge">Add</code>, and one eliminator, <code class="highlighter-rouge">Elem</code>. As a result, we have what looks a lot like the description of an abstract data type. The crucial difference between this contype, and say, a record with those fields, is that a contypes are <em>closed</em>. We know that given a <code class="highlighter-rouge">Set a</code>, these are the <em>only</em> primitive ways to interact with this data type. All other functionality must be defined in terms of these primitives.</p>
+
+<h3 id="other-stuff">Other stuff?</h3>
+
+<p>Honestly I’m sure there’s way crazier stuff you could come up with that what I’ve got here. Another example I’ve just thought of while I’m writing this sentence: this kind of system has natural support for mutual data types, as there’s nothing to stop you intertwining the definitions of multiple types. Let me know if there’s any other crazy stuff you could do!</p>
+
+<h1 id="is-this-even-useful">Is this even useful?</h1>
+
+<p>Would a system which defines types in this way ever be useful? Firstly, allowing users to define their types like this necessitates a separate <em>implementation</em> which satisfies the constraints set out in the types (see my previous blog post, <em>“Types: values vs representation”</em>). If this were not the case, it would be trivial to define a type like this:</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="kt">A</span>     <span class="o">:</span> <span class="kt">Type</span>
+<span class="kt">ElimA</span> <span class="o">:</span> <span class="kt">A</span> <span class="o">-&gt;</span> <span class="n">a</span></code></pre></figure>
+
+<p>Which makes the system logically unsound. By requiring an implementation, we ensure this can never happen since writing the <code class="highlighter-rouge">ElimA</code> function would be impossible.</p>
+
+<p>One idea is that the implementation could be built purely from fast primitives, allowing for performant pure structures. Though, these ideas are nothing new. A system like this is just a dependently-typed lambda calculus extended with fast primitives, plus an “abstract datatype” system like ML’s <em>abstype</em>. But it’s interesting to think about anyway.</p>
+
+          </div>
+          <div class="article-share">
+            
+            
+            <a href="https://twitter.com/home?status=Types+are+contexts%20-%20eayus.github.io/posts/types-contexts" title="Share on Twitter" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M492 109.5c-17.4 7.7-36 12.9-55.6 15.3 20-12 35.4-31 42.6-53.6 -18.7 11.1-39.4 19.2-61.5 23.5C399.8 75.8 374.6 64 346.8 64c-53.5 0-96.8 43.4-96.8 96.9 0 7.6 0.8 15 2.5 22.1 -80.5-4-151.9-42.6-199.6-101.3 -8.3 14.3-13.1 31-13.1 48.7 0 33.6 17.2 63.3 43.2 80.7C67 210.7 52 206.3 39 199c0 0.4 0 0.8 0 1.2 0 47 33.4 86.1 77.7 95 -8.1 2.2-16.7 3.4-25.5 3.4 -6.2 0-12.3-0.6-18.2-1.8 12.3 38.5 48.1 66.5 90.5 67.3 -33.1 26-74.9 41.5-120.3 41.5 -7.8 0-15.5-0.5-23.1-1.4C62.8 432 113.7 448 168.3 448 346.6 448 444 300.3 444 172.2c0-4.2-0.1-8.4-0.3-12.5C462.6 146 479 129 492 109.5z"/></svg>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=eayus.github.io/posts/types-contexts" title="Share on Facebook" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M288 192v-38.1c0-17.2 3.8-25.9 30.5-25.9H352V64h-55.9c-68.5 0-91.1 31.4-91.1 85.3V192h-45v64h45v192h83V256h56.4l7.6-64H288z"/></svg>
+            </a>
+          </div>
+
+          
+        </article>
+        <footer class="footer scrollappear">
+  <p>
+    Chalk is a high quality, completely customizable, performant and 100% free
+    blog template for Jekyll built by
+    <a href="/about" title="About me">Nielsen Ramon</a>. Download it <a href="https://github.com/nielsenramon/chalk" rel="noreferrer noopener" target="_blank" title="Download Chalk">here</a>.
+  </p>
+</footer>
+
+      </div>
+    </div>
+  </main>
+  
+
+<script type="text/javascript" src="/assets/vendor-734ddaa553ebf4e6ca703bd7c567ef4a0e43b0ba799607355e56b81e88781318.js"></script>
+
+
+  <script type="text/javascript" src="/assets/webfonts-96493456d319d1bf419afdf8701552d4d486fee6afd304897d4fd81eb4e0cc0b.js"></script>
+
+
+
+  <script type="text/javascript" src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js"></script>
+
+
+<script type="text/javascript" src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js"></script>
+
+
+  <script type="text/javascript" src="/assets/themetoggle-df0d3d73164dc26dffbd630182ae4d0dfa7bee6b694a2b5d565d73595b582bbf.js"></script>
+
+</body>
+</html>
